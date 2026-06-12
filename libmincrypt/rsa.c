@@ -278,10 +278,17 @@ int RSA_verify(const RSAPublicKey *key,
 
     modpow(key, buf);  // In-place exponentiation.
 
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     // Xor sha portion, so it all becomes 00 iff equal.
     for (i = len - hash_len; i < len; ++i) {
         buf[i] ^= *hash++;
     }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
     // Hash resulting buf, in-place.
     switch (hash_len) {
